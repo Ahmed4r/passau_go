@@ -1,0 +1,15 @@
+version: 1
+id: 8cb22062-dbc4-43d8-ba3e-a9522f20a6e7
+name: transitous
+slug: transitous
+protocol: http
+port: 4500
+scenarios:
+  - name: default
+    path: ./default.js
+    default: true
+generatedFrom:
+  type: spec
+  mode: static
+  path: ../../specs/transit-map.openapi.yaml
+interceptRequests: true

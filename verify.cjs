@@ -1,5 +1,6 @@
 ﻿const fs=require('fs'), vm=require('vm'), assert=require('node:assert/strict');
 let html=fs.readFileSync('index.html','utf8');
+for(const file of ['map-core.js','transit-map.js'])new vm.Script(fs.readFileSync(file,'utf8'),{filename:file});
 for(const match of html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g))new vm.Script(match[1]);
 function extract(name){const start=html.indexOf('function '+name+'(');assert.ok(start>=0);const body=html.indexOf('{',start);let depth=1,end=body+1;while(depth){if(html[end]==='{')depth++;if(html[end]==='}')depth--;end++;}return html.slice(start,end)}
 const items=[{duration:900,legs:[{mode:'BUS'},{mode:'BUS'}]},{duration:300,legs:[{mode:'WALK'},{mode:'BUS'}]},{duration:500,legs:[{mode:'WALK'}]}];

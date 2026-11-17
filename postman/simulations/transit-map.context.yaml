@@ -1,0 +1,30 @@
+purpose:
+  stands_in_for: Transitous map stops, map trip segments and journey planning HTTP APIs
+  unblocks: Local UI verification without dependence on changing transit schedules
+assumptions:
+  - id: map-data-is-timing-not-gps
+    status: supported
+    claim: TripSegment realTime describes updated arrival/departure times, not GPS vehicle positions.
+    reason: The provider contract exposes segment geometry and times without a vehicle GPS field.
+    verification: Read the MOTIS TripSegment schema on 2026-11-17. Live map and plan requests returned HTTP 200 and CORS wildcard headers. This does not establish bus GPS coverage.
+    source: https://github.com/motis-project/motis/blob/master/openapi.yaml
+    updated_at: '2026-11-17'
+  - id: geometry-and-map-ui
+    status: supported
+    claim: The app can consume contract-shaped stops, segments and itineraries and handle empty, failed and superseded requests.
+    reason: DOM integration tests run the actual app scripts and Leaflet with real HTTP calls through the local simulation.
+    verification: npm run test:map passed stop and coordinate selection, SVG route drawing, estimated markers, cleared-route late response, 503 recovery, empty data and Arabic RTL checks. Simulation logs recorded the exercised endpoints. Visual layout and tile rendering in a real browser remain unverified because the in-app browser was unavailable.
+    source: tests/map-integration.cjs; postman/mocks/transitous/default.js; transit-map.js
+    updated_at: '2026-11-17'
+  - id: fixture-provenance
+    status: supported
+    claim: The simulation is a local contract-based stand-in, not an operator-maintained mock.
+    reason: Postman CLI was signed out; workspace mock discovery was skipped. Orbit returned unrelated providers, so the official MOTIS contract and live responses were used.
+    verification: Mock fixtures use synthetic Passau coordinates and dynamically generated test times. No production GPS accuracy can be inferred from them.
+    source: postman/specs/transit-map.openapi.yaml; postman/mocks/transitous/default.js
+    updated_at: '2026-11-17'
+fingerprints:
+  - id: initial-map-verification
+    date: '2026-11-17'
+    commit: null
+    cli: '1.80.0'

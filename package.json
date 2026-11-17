@@ -1,0 +1,11 @@
+﻿{
+    "devDependencies":  {
+                            "jsdom":  "^26.1.0",
+                            "leaflet":  "^1.9.4"
+                        },
+    "private":  true,
+    "scripts":  {
+                    "test:map":  "node tests/map-integration.cjs",
+                    "test":  "node verify.cjs \u0026\u0026 node --test tests/map-core.test.cjs"
+                }
+}

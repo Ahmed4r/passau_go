@@ -1,0 +1,7 @@
+simulation: transit-map
+routing: path
+mocks:
+  - name: transitous
+    routeKey: transitous
+    origin: api.transitous.org
+    path: postman/mocks/transitous

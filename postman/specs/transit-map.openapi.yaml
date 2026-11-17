@@ -1,0 +1,42 @@
+openapi: 3.0.3
+info:
+  title: Passau Go Transitous map dependency
+  version: '1.0'
+  description: Subset used by the map. Source https://github.com/motis-project/motis/blob/master/openapi.yaml
+servers:
+  - url: https://api.transitous.org
+paths:
+  /api/v6/map/stops:
+    get:
+      parameters:
+        - {name: min, in: query, required: true, schema: {type: string}}
+        - {name: max, in: query, required: true, schema: {type: string}}
+        - {name: grouped, in: query, schema: {type: boolean}}
+        - {name: modes, in: query, schema: {type: string}}
+      responses:
+        '200': {description: Array of places with name, stopId, lat and lon}
+        '500': {description: Provider unavailable}
+  /api/v6/map/trips:
+    get:
+      parameters:
+        - {name: min, in: query, required: true, schema: {type: string}}
+        - {name: max, in: query, required: true, schema: {type: string}}
+        - {name: zoom, in: query, required: true, schema: {type: number}}
+        - {name: precision, in: query, schema: {type: integer}}
+        - {name: startTime, in: query, required: true, schema: {type: string, format: date-time}}
+        - {name: endTime, in: query, required: true, schema: {type: string, format: date-time}}
+      responses:
+        '200': {description: Array of TripSegment objects. realTime denotes updated times, never GPS coordinates.}
+        '500': {description: Provider unavailable}
+  /api/v6/plan:
+    get:
+      parameters:
+        - {name: fromPlace, in: query, required: true, schema: {type: string}}
+        - {name: toPlace, in: query, required: true, schema: {type: string}}
+        - {name: transitModes, in: query, schema: {type: string}}
+        - {name: detailedLegs, in: query, schema: {type: boolean}}
+        - {name: detailedTransfers, in: query, schema: {type: boolean}}
+        - {name: language, in: query, schema: {type: string}}
+      responses:
+        '200': {description: Object with itineraries array, legs and legGeometry with explicit precision}
+        '500': {description: Provider unavailable}
