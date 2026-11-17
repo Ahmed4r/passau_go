@@ -65,7 +65,7 @@ window.createTransitMap = function ({ tr, fmtTime, apiBase, getLanguage }) {
     endpointsLayer.clearLayers();
     for (const [place, label] of [[from, 'A'], [to, 'B']]) {
       if (!place) continue;
-      const icon = L.divIcon({ className: 'map-endpoint', html: '<span>' + label + '</span>', iconSize: [30, 30], iconAnchor: [15, 15] });
+      const icon = L.divIcon({ className: 'map-endpoint map-endpoint-' + label.toLowerCase(), html: '<span>' + label + '</span>', iconSize: [38, 38], iconAnchor: [19, 19] });
       const marker = L.marker(pointOf(place), { icon, title: label + ': ' + place.name }).addTo(endpointsLayer);
       marker.bindPopup(element('span', label + ': ' + place.name));
     }
@@ -92,7 +92,7 @@ window.createTransitMap = function ({ tr, fmtTime, apiBase, getLanguage }) {
     const term = $('mapStopSearch').value.trim().toLocaleLowerCase();
     const matching = stops.filter(stop => stop.name.toLocaleLowerCase().includes(term));
     for (const stop of stops) {
-      L.circleMarker(pointOf(stop), { radius: 5, color: '#fff', weight: 1.5, fillColor: '#537faa', fillOpacity: 1 })
+      L.circleMarker(pointOf(stop), { radius: 5, color: '#fff', weight: 2, fillColor: '#397cf6', fillOpacity: 0.95 })
         .addTo(stopsLayer).bindPopup(stopPopup(stop));
     }
     const list = $('mapStopList'); list.replaceChildren();
@@ -157,8 +157,13 @@ window.createTransitMap = function ({ tr, fmtTime, apiBase, getLanguage }) {
     for (const [id, { segment, trip, point }] of active) {
       let marker = busMarkers.get(id);
       if (!marker) {
-        const label = element('span', trip.displayName || tr('mapBus'));
-        const icon = L.divIcon({ className: 'bus-estimate-marker', html: label, iconSize: [62, 28], iconAnchor: [31, 14] });
+        const label = element('span', undefined, 'bus-marker-content');
+        const busIcon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        busIcon.setAttribute('viewBox', '0 0 24 24'); busIcon.setAttribute('aria-hidden', 'true');
+        const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+        use.setAttribute('href', '#i-bus'); busIcon.append(use);
+        label.append(busIcon, element('span', trip.displayName || tr('mapBus')));
+        const icon = L.divIcon({ className: 'bus-estimate-marker', html: label, iconSize: [84, 34], iconAnchor: [42, 17] });
         marker = L.marker(point, { icon, title: tr('mapEstimated') + ': ' + (trip.displayName || '') }).addTo(busesLayer);
         busMarkers.set(id, marker);
       } else marker.setLatLng(point);
@@ -186,7 +191,10 @@ window.createTransitMap = function ({ tr, fmtTime, apiBase, getLanguage }) {
     for (const leg of item.legs || []) {
       const path = pathFor(leg); approximate ||= path.approximate;
       if (path.points.length > 1) {
-        L.polyline(path.points, { color: leg.mode === 'WALK' ? '#aab7cb' : '#ed3f50', weight: leg.mode === 'WALK' ? 4 : 6,
+        L.polyline(path.points, { color: '#ffffff', weight: leg.mode === 'WALK' ? 7 : 10,
+          opacity: 0.9, interactive: false,
+          dashArray: leg.mode === 'WALK' || path.approximate ? '7 8' : null }).addTo(routeLayer);
+        L.polyline(path.points, { color: leg.mode === 'WALK' ? '#9263da' : '#397cf6', weight: leg.mode === 'WALK' ? 4 : 6,
           dashArray: leg.mode === 'WALK' || path.approximate ? '7 8' : null }).addTo(routeLayer);
         allPoints.push(...path.points);
       }
@@ -197,7 +205,7 @@ window.createTransitMap = function ({ tr, fmtTime, apiBase, getLanguage }) {
       if (leg.cancelled) step.append(element('span', tr('canceled'), 'trip-cancelled'));
       steps.append(step);
       for (const stop of [leg.from, ...(leg.intermediateStops || []), leg.to]) {
-        if (pointOf(stop)) L.circleMarker(pointOf(stop), { radius: 4, color: '#fff', fillColor: '#e62a37', fillOpacity: 1 })
+        if (pointOf(stop)) L.circleMarker(pointOf(stop), { radius: 5, weight: 2, color: '#397cf6', fillColor: '#fff', fillOpacity: 1 })
           .addTo(routeLayer).bindPopup(stopPopup(stop));
       }
     }
