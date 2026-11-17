@@ -1,5 +1,12 @@
 ﻿const fs=require('fs'), vm=require('vm'), assert=require('node:assert/strict');
 let html=fs.readFileSync('index.html','utf8');
+// Browser SRI checks must match the exact pinned Leaflet files, not just parse.
+for(const asset of ['leaflet.js','leaflet.css']){
+  const tag=[...html.matchAll(/<(?:script|link)\b[^>]*>/g)].map(match=>match[0]).find(tag=>tag.includes('/leaflet@1.9.4/dist/'+asset));
+  assert.ok(tag,'Missing pinned Leaflet asset: '+asset);
+  const expected='sha256-'+require('node:crypto').createHash('sha256').update(fs.readFileSync(require.resolve('leaflet/dist/'+asset))).digest('base64');
+  assert.equal(tag.match(/integrity="([^"]+)"/)?.[1],expected,'Browser would block '+asset+' due to invalid SRI');
+}
 for(const file of ['map-core.js','transit-map.js'])new vm.Script(fs.readFileSync(file,'utf8'),{filename:file});
 for(const match of html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g))new vm.Script(match[1]);
 function extract(name){const start=html.indexOf('function '+name+'(');assert.ok(start>=0);const body=html.indexOf('{',start);let depth=1,end=body+1;while(depth){if(html[end]==='{')depth++;if(html[end]==='}')depth--;end++;}return html.slice(start,end)}
